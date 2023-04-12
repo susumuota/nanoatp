@@ -1,0 +1,41 @@
+{
+  "name": "atpref",
+  "private": true,
+  "version": "0.0.0",
+  "description": "reference test for AT Protocol.",
+  "author": "Susumu OTA",
+  "license": "MIT",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "module": "dist/index.js",
+  "main": "dist/index.umd.cjs",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.umd.cjs"
+    }
+  },
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc && vite build",
+    "watch": "concurrently \"tsc --watch\" \"vite build --watch\"",
+    "test": "vitest",
+    "format": "prettier --check ."
+  },
+  "devDependencies": {
+    "@tsconfig/esm": "^1.0.2",
+    "@tsconfig/node-lts": "^18.12.1",
+    "@tsconfig/strictest": "^2.0.0",
+    "@types/node": "^18.15.11",
+    "concurrently": "^8.0.1",
+    "prettier": "^2.8.7",
+    "typescript": "^5.0.4",
+    "vite": "^4.2.0",
+    "vitest": "^0.30.1"
+  },
+  "dependencies": {
+    "@atproto/api": "^0.2.5"
+  }
+}
