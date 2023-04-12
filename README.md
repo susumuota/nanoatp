@@ -15,7 +15,7 @@ Then in your application:
 ```python
 from nanoatp import BskyAgent
 
-agent = new BskyAgent("https://bsky.social")
+agent = BskyAgent("https://bsky.social")
 ```
 
 ## Usage
@@ -47,6 +47,33 @@ agent.uploadImage(path, alt, contentType)
 
 # Session management
 agent.login(identifier, password)
+```
+
+For example, to post a record, reply to it, and upload an image:
+
+```python
+from nanoatp import BskyAgent
+
+agent = BskyAgent("https://bsky.social")
+session = agent.login()
+
+record = {"text": "Hello, world! 0"}
+r = agent.post(record)
+root = r
+parent = r
+
+record = {"text": "Hello, world! 1", "reply": {"root": root, "parent": parent}}
+r = agent.post(record)
+parent = r
+
+image = agent.uploadImage("favicon-16x16.png", "image/png")
+embed = {"$type": "app.bsky.embed.images#main", "images": [image]}
+record = {
+    "text": "Hello, world! 2",
+    "reply": {"root": root, "parent": parent},
+    "embed": embed
+}
+agent.post(record)
 ```
 
 ## Advanced
