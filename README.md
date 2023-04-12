@@ -27,7 +27,7 @@ Log into a server using these APIs. You'll need an active session for most metho
 ```python
 from nanoatp import BskyAgent
 
-agent = new BskyAgent("https://bsky.social")
+agent = BskyAgent("https://bsky.social")
 
 agent.login('alice@mail.com', 'hunter2')
 
