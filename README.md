@@ -41,9 +41,11 @@ The agent includes methods for many common operations, including:
 
 ```python
 # Feeds and content
+agent.getPost(repo, rkey, cid)
 agent.post(record)
-agent.uploadBlob(data, contentType)
-agent.uploadImage(path, alt, contentType)
+agent.deletePost(postUri)
+agent.uploadBlob(data, encoding)
+agent.uploadImage(path, alt, encoding)  # wrapper for uploadBlob
 
 # Session management
 agent.login(identifier, password)

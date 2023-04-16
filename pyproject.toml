@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nanoatp"
-version = "0.1.0"
+version = "0.2.0"
 description = "nano implementation of the AT Protocol (Authenticated Transfer Protocol)"
 authors = ["Susumu OTA <1632335+susumuota@users.noreply.github.com>"]
 readme = "README.md"
