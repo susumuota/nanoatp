@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nanoatp"
-version = "0.2.0"
+version = "0.3.0"
 description = "nano implementation of the AT Protocol (Authenticated Transfer Protocol)"
 authors = ["Susumu OTA <1632335+susumuota@users.noreply.github.com>"]
 readme = "README.md"
@@ -8,6 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.9.16"
 requests = "^2.28.2"
+tld = "^0.13"
 
 
 [tool.poetry.group.dev.dependencies]

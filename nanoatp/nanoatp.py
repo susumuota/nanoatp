@@ -158,6 +158,14 @@ class BskyAgent:
         response = self.requests.post(f"{self.service}/xrpc/com.atproto.repo.uploadBlob", headers=headers, data=data)
         return response.json()
 
+    def resolveHandle(self, handle: str):
+        """https://github.com/bluesky-social/atproto/blob/main/lexicons/com/atproto/identity/resolveHandle.json"""
+        params = {"handle": handle}
+        response = self.requests.get(
+            f"{self.service}/xrpc/com.atproto.identity.resolveHandle", headers=self.headers, params=params
+        )
+        return response.json()
+
 
 # TODO: create util.py?
 def verifySession(session: dict[str, str]):
