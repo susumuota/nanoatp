@@ -47,6 +47,9 @@ agent.deletePost(postUri)
 agent.uploadBlob(data, encoding)
 agent.uploadImage(path, alt, encoding)  # wrapper for uploadBlob
 
+# Identity
+agent.resolveHandle(handle)
+
 # Session management
 agent.login(identifier, password)
 ```

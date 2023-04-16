@@ -3,7 +3,7 @@
 
 import { test, expect } from 'vitest';
 import process from 'node:process';
-import { BskyAgent, AtUri } from '@atproto/api';
+import { BskyAgent, AtUri, RichText } from '@atproto/api';
 
 const SERVICE = 'https://bsky.social/';
 
@@ -21,8 +21,15 @@ test('test bsky', async () => {
   expect(email).toBeDefined();
   expect(accessJwt).toBeDefined();
   expect(refreshJwt).toBeDefined();
-
   console.log(agent.session?.did);
+
+  const rt = new RichText({text: 'Hello @paper.bsky.social, check out this link: https://example.com'})
+  await rt.detectFacets(agent) // automatically detects mentions and links
+  if (rt.facets) {
+    for (const facet of rt.facets) {
+      console.log(facet);
+    }
+  }
 
   // r = await agent.com.atproto.repo.listRecords({repo: agent.session.did, collection: 'app.bsky.feed.post'})
   // expect(r.success).toBe(true);
@@ -32,15 +39,15 @@ test('test bsky', async () => {
   // const records = r.data.records;
   // console.log(records[0]);
 
-  r = await agent.app.bsky.feed.post.create({repo: agent.session?.did}, {
-    text: 'Hello, world!',
-    createdAt: (new Date()).toISOString()
-  })
-  console.log(r);
+  // r = await agent.app.bsky.feed.post.create({repo: agent.session?.did}, {
+  //   text: 'Hello, world!',
+  //   createdAt: (new Date()).toISOString()
+  // })
+  // console.log(r);
 
-  let uri = new AtUri(r.uri);
-  r = await await agent.app.bsky.feed.post.get({repo: uri.hostname, rkey: uri.rkey})
-  console.log(r)
+  // let uri = new AtUri(r.uri);
+  // r = await await agent.app.bsky.feed.post.get({repo: uri.hostname, rkey: uri.rkey})
+  // console.log(r)
 
   // r = await agent.app.bsky.feed.post.list({repo: agent.session.did})
   // console.log(r.records[0]);

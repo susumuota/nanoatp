@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 from .nanoatp import BskyAgent, parseUri
+from .richtext import RichText
 
-__version__ = "0.2.0"
-__all__ = ['__version__', 'BskyAgent', 'parseUri']
+__version__ = "0.3.0"
+__all__ = ['__version__', 'BskyAgent', 'parseUri', 'RichText']
