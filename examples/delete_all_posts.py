@@ -8,7 +8,7 @@ from time import sleep
 from nanoatp import BskyAgent
 
 agent = BskyAgent()
-session = agent.login()  # Use environment variables ATP_IDENTIFIER and ATP_PASSWORD
+session = agent.login()
 
 cursor = ""
 while True:
