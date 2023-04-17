@@ -13,10 +13,32 @@ pip install nanoatp
 Then in your application:
 
 ```python
-from nanoatp import BskyAgent
+from nanoatp import BskyAgent, RichText
 
 agent = BskyAgent("https://bsky.social")
+agent.login()
+
+# post a simple text
+record = {"text": "Hello World!"}
+response = agent.post(record)
+print(response)
+
+# create a RichText
+rt = RichText("Hello @ota.bsky.social, check out this link: https://example.com")
+rt.detectFacets(agent)
+print(rt.facets)
+
+# upload an image
+image = agent.uploadImage("example.png")
+embed = {"$type": "app.bsky.embed.images#main", "images": [image]}
+record = {"text": rt.text, "facets": rt.facets, "embed": embed}
+
+# post it
+response = agent.post(record)
+print(response)
 ```
+
+See [examples](https://github.com/susumuota/nanoatp/tree/main/examples) for more.
 
 ## Usage
 
@@ -29,10 +51,9 @@ from nanoatp import BskyAgent
 
 agent = BskyAgent("https://bsky.social")
 
-agent.login('alice@mail.com', 'hunter2')
-
-# if you don't specify credentials, ATP_IDENTIFIER and ATP_PASSWORD environment variables will be used
-# agent.login()
+# if you don't specify credentials,
+# ATP_IDENTIFIER and ATP_PASSWORD environment variables will be used
+agent.login("alice@mail.com", "hunter2")
 ```
 
 ### API calls
@@ -54,30 +75,21 @@ agent.resolveHandle(handle)
 agent.login(identifier, password)
 ```
 
-For example, to post a record, reply to it, and upload an image:
+### Rich text
+
+Some records (ie posts) use the `app.bsky.richtext` lexicon. At the moment richtext is only used for links and mentions, but it will be extended over time to include bold, italic, and so on.
+
+ℹ️ Currently the implementation is very naive. I have not tested it with UTF-16 text.
 
 ```python
-from nanoatp import BskyAgent
+from nanoatp import BskyAgent, RichText
 
-agent = BskyAgent("https://bsky.social")
-session = agent.login()
+agent = BskyAgent()
+agent.login()
 
-record = {"text": "Hello, world! 0"}
-r = agent.post(record)
-root = r
-parent = r
-
-record = {"text": "Hello, world! 1", "reply": {"root": root, "parent": parent}}
-r = agent.post(record)
-parent = r
-
-image = agent.uploadImage("favicon-16x16.png", "image/png")
-embed = {"$type": "app.bsky.embed.images#main", "images": [image]}
-record = {
-    "text": "Hello, world! 2",
-    "reply": {"root": root, "parent": parent},
-    "embed": embed
-}
+rt = RichText("Hello @ota.bsky.social, check out this link: https://example.com")
+rt.detectFacets(agent)
+record = {"text": rt.text, "facets": rt.facets}
 agent.post(record)
 ```
 
@@ -94,7 +106,7 @@ res1 = agent.createRecord(
     agent.session["did"],  # repo
     "app.bsky.feed.post",  # collection
     {
-        "$type": "app.bsky.feed.post",  # record
+        "$type": "app.bsky.feed.post",
         "text": "Hello, world!",
         "createdAt": datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z")
     }
@@ -108,8 +120,16 @@ export ATP_IDENTIFIER="foo.bsky.social"
 export ATP_PASSWORD="password"
 poetry install
 poetry run pytest -s     # run pytest once
-poetry run -- ptw -- -s  # run pytest and watch for changes
+poetry run -- ptw -- -s  # watch for changes and run pytest
 ```
+
+## TODO:
+
+- [ ] split BskyAgent and AtpAgent code
+- [ ] implement a proper RichText parser with UTF-16 (currently it's very naive)
+- [ ] type definitions
+- [ ] structured tests
+- [ ] more APIs
 
 ## License
 

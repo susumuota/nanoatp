@@ -4,7 +4,7 @@
 from nanoatp import BskyAgent
 
 agent = BskyAgent()
-session = agent.login()  # Use environment variables ATP_IDENTIFIER and ATP_PASSWORD
+agent.login()
 
 record = {"text": "Hello World!"}
 response = agent.post(record)

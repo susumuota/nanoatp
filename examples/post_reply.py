@@ -6,8 +6,7 @@ from time import sleep
 from nanoatp import BskyAgent
 
 agent = BskyAgent()
-session = agent.login()  # Use environment variables ATP_IDENTIFIER and ATP_PASSWORD
-print(session.get("did"))
+agent.login()
 sleep(1)
 
 record = {"text": "Hello World!"}
@@ -16,7 +15,7 @@ print(response)
 sleep(1)
 
 parent = response  # set parent
-root = response  # set root
+root = parent      # set root
 
 record = {"text": "Reply 1", "reply": {"root": root, "parent": parent}}
 response = agent.post(record)
@@ -32,7 +31,7 @@ print(response)
 sleep(1)
 
 parent = response  # change parent
-root = response  # change root
+root = parent      # change root
 
 record = {"text": "Reply 3", "reply": {"root": root, "parent": parent}}
 response = agent.post(record)

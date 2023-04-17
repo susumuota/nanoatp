@@ -1,9 +1,17 @@
 [tool.poetry]
 name = "nanoatp"
-version = "0.3.0"
-description = "nano implementation of the AT Protocol (Authenticated Transfer Protocol)"
+version = "0.3.1"
+description = "A nano implementation of the AT Protocol (Authenticated Transfer Protocol)."
+license = "MIT"
 authors = ["Susumu OTA <1632335+susumuota@users.noreply.github.com>"]
 readme = "README.md"
+homepage = "https://github.com/susumuota/nanoatp"
+repository = "https://github.com/susumuota/nanoatp"
+documentation = "https://github.com/susumuota/nanoatp#readme"
+keywords = ["atprotocol", "atproto", "bluesky"]
+classifiers = [
+    "Topic :: Software Development :: Libraries :: Python Modules"
+]
 
 [tool.poetry.dependencies]
 python = "^3.9.16"
