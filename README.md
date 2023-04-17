@@ -1,16 +1,23 @@
 # nanoatp
 
-A nano implementation of the AT Protocol (Authenticated Transfer Protocol).
+A nano implementation of the AT Protocol (Authenticated Transfer Protocol) for Python.
 
 ## Getting started
 
-First install the package:
+- First, install the package.
 
 ```bash
 pip install nanoatp
 ```
 
-Then in your application:
+- Set your credentials as environment variables. Or you can pass them to `BskyAgent.login()`.
+
+```bash
+export ATP_IDENTIFIER="foo.bsky.social"
+export ATP_PASSWORD="password"
+```
+
+- Then in your application,
 
 ```python
 from nanoatp import BskyAgent, RichText
