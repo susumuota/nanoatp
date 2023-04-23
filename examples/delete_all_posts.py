@@ -12,7 +12,7 @@ session = agent.login()
 
 cursor = ""
 while True:
-    response = agent.listRecords(session["did"], "app.bsky.feed.post", limit=100, cursor=cursor, reverse=True)
+    response = agent._repo_listRecords(session["did"], "app.bsky.feed.post", limit=100, cursor=cursor, reverse=True)
     print(response.get("cursor"))
     cursor = response.get("cursor") or ""
     for record in response["records"]:

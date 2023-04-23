@@ -3,9 +3,9 @@
 
 from __future__ import annotations
 
-import datetime
-import os
+from datetime import datetime, timezone
 from mimetypes import guess_type
+from os import getenv
 from typing import Any
 from urllib.parse import urlparse
 
@@ -23,10 +23,10 @@ class BskyAgent:
 
     def login(self, identifier: str = "", password: str = ""):
         """https://github.com/bluesky-social/atproto/blob/main/packages/api/src/agent.ts"""
-        id = identifier or os.getenv("ATP_IDENTIFIER") or ""
-        pw = password or os.getenv("ATP_PASSWORD") or ""
-        session = self.createSession(id, pw)
-        if not verifySession(session):
+        id = identifier or getenv("ATP_IDENTIFIER") or ""
+        pw = password or getenv("ATP_PASSWORD") or ""
+        session = self._server_createSession(id, pw)
+        if session.get("error") or not session.get("accessJwt"):
             self.session = {}
             self.headers = {}
             raise Exception(str(session))
@@ -37,27 +37,37 @@ class BskyAgent:
 
     def getPost(self, repo: str, rkey: str, cid: str = "") -> dict[str, Any]:
         """https://github.com/bluesky-social/atproto/blob/main/packages/api/src/bsky-agent.ts"""
-        return self.getRecord(repo, "app.bsky.feed.post", rkey, cid)
+        return self._repo_getRecord(repo, "app.bsky.feed.post", rkey, cid)
 
     def post(self, record: dict[str, Any]):
         """https://github.com/bluesky-social/atproto/blob/main/packages/api/src/bsky-agent.ts"""
         if not self.session:
             raise Exception("Not logged in")
         if not record.get("createdAt"):
-            record.update({"createdAt": now()})
+            record.update({"createdAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")})
         if not record.get("$type"):
             record.update({"$type": "app.bsky.feed.post"})
         repo = self.session.get("did") or self.session.get("handle") or ""
-        return self.createRecord(repo, "app.bsky.feed.post", record)
+        return self._repo_createRecord(repo, "app.bsky.feed.post", record)
 
     def deletePost(self, postUri: str):
         """https://github.com/bluesky-social/atproto/blob/main/packages/api/src/bsky-agent.ts"""
         if not self.session:
             raise Exception("Not logged in")
-        repo, collection, rkey = parseUri(postUri)
+        repo, collection, rkey = parseAtUri(postUri)
         if not (repo and collection and rkey):
             raise Exception(f"Invalid postUrl format: {postUri}")
-        return self.deleteRecord(repo, collection, rkey)
+        return self._repo_deleteRecord(repo, collection, rkey)
+
+    def uploadBlob(self, data: bytes, encoding: str) -> dict[str, Any]:
+        """https://github.com/bluesky-social/atproto/blob/main/packages/api/src/agent.ts"""
+        if not self.session:
+            raise Exception("Not logged in")
+        return self._repo_uploadBlob(data, encoding)
+
+    def resolveHandle(self, handle: str):
+        """https://github.com/bluesky-social/atproto/blob/main/packages/api/src/agent.ts"""
+        return self._identity_resolveHandle(handle)
 
     def uploadImage(self, path: str, alt: str = "", encoding: str = ""):
         """https://github.com/bluesky-social/atproto/blob/main/lexicons/app/bsky/embed/images.json"""
@@ -67,7 +77,7 @@ class BskyAgent:
         data = b""
         with open(path, "rb") as f:
             data = f.read()
-        response = self.uploadBlob(data, encoding)
+        response = self._repo_uploadBlob(data, encoding)
         blob: dict[str, str] = response.get("blob") or {}
         if blob is {}:
             raise Exception(str(response))
@@ -83,13 +93,13 @@ class BskyAgent:
         }
         return image
 
-    def createSession(self, identifier: str, password: str) -> dict[str, Any]:
+    def _server_createSession(self, identifier: str, password: str) -> dict[str, Any]:
         """https://github.com/bluesky-social/atproto/blob/main/lexicons/com/atproto/server/createSession.json"""
         json = {"identifier": identifier, "password": password}
         response = self.requests.post(f"{self.service}/xrpc/com.atproto.server.createSession", json=json)
         return response.json()
 
-    def createRecord(
+    def _repo_createRecord(
         self,
         repo: str,
         collection: str,
@@ -108,7 +118,7 @@ class BskyAgent:
         )
         return response.json()
 
-    def getRecord(self, repo: str, collection: str, rkey: str, cid: str = "") -> dict[str, Any]:
+    def _repo_getRecord(self, repo: str, collection: str, rkey: str, cid: str = "") -> dict[str, Any]:
         """https://github.com/bluesky-social/atproto/blob/main/lexicons/com/atproto/repo/getRecord.json"""
         params = {"repo": repo, "collection": collection, "rkey": rkey}
         params.update({"cid": cid}) if cid != "" else None
@@ -117,7 +127,7 @@ class BskyAgent:
         )
         return response.json()
 
-    def deleteRecord(
+    def _repo_deleteRecord(
         self, repo: str, collection: str, rkey: str, swapRecord: str = "", swapCommit: str = ""
     ) -> requests.Response:
         """https://github.com/bluesky-social/atproto/blob/main/lexicons/com/atproto/repo/deleteRecord.json"""
@@ -129,7 +139,7 @@ class BskyAgent:
         )
         return response  # TODO
 
-    def listRecords(
+    def _repo_listRecords(
         self,
         repo: str,
         collection: str,
@@ -151,14 +161,14 @@ class BskyAgent:
         )
         return response.json()
 
-    def uploadBlob(self, data: bytes, encoding: str) -> dict[str, Any]:
+    def _repo_uploadBlob(self, data: bytes, encoding: str) -> dict[str, Any]:
         """https://github.com/bluesky-social/atproto/blob/main/lexicons/com/atproto/repo/uploadBlob.json"""
         headers = {"Content-Type": encoding, "Content-Length": str(len(data))}
         headers.update(self.headers)
         response = self.requests.post(f"{self.service}/xrpc/com.atproto.repo.uploadBlob", headers=headers, data=data)
         return response.json()
 
-    def resolveHandle(self, handle: str):
+    def _identity_resolveHandle(self, handle: str):
         """https://github.com/bluesky-social/atproto/blob/main/lexicons/com/atproto/identity/resolveHandle.json"""
         params = {"handle": handle}
         response = self.requests.get(
@@ -167,18 +177,8 @@ class BskyAgent:
         return response.json()
 
 
-# TODO: create util.py?
-def verifySession(session: dict[str, str]):
-    """https://github.com/bluesky-social/atproto/blob/main/lexicons/com/atproto/server/createSession.json"""
-    # email is optional
-    return not session.get("error") and set(session.keys()).issuperset({"did", "handle", "accessJwt", "refreshJwt"})
-
-
-def now():
-    return datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z")
-
-
-def parseUri(uri: str):
+def parseAtUri(uri: str):
+    """https://github.com/bluesky-social/atproto/blob/main/packages/uri/src/index.ts"""
     u = urlparse(uri)
     repo = u.netloc
     _, collection, rkey = u.path.split("/")
