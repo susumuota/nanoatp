@@ -1,5 +1,14 @@
 # nanoatp
 
+[![PyPI](https://img.shields.io/pypi/v/nanoatp?color=blue)](https://pypi.org/project/nanoatp/)
+[![GitHub License](https://img.shields.io/github/license/susumuota/nanoatp)](https://github.com/susumuota/nanoatp/blob/main/LICENSE)
+[![GitHub last commit](https://img.shields.io/github/last-commit/susumuota/nanoatp)](https://github.com/susumuota/nanoatp/commits)
+&emsp;
+EN |
+[JA](https://github-com.translate.goog/susumuota/nanoatp/blob/main/README.md?_x_tr_sl=en&_x_tr_tl=ja&_x_tr_hl=ja&_x_tr_pto=wapp) |
+[ES](https://github-com.translate.goog/susumuota/nanoatp/blob/main/README.md?_x_tr_sl=en&_x_tr_tl=es&_x_tr_hl=es&_x_tr_pto=wapp) |
+[ZH](https://github-com.translate.goog/susumuota/nanoatp/blob/main/README.md?_x_tr_sl=en&_x_tr_tl=zh-CN&_x_tr_hl=zh-CN&_x_tr_pto=wapp)
+
 A nano implementation of the AT Protocol (Authenticated Transfer Protocol) for Python.
 
 ## Getting started
@@ -37,10 +46,10 @@ print(rt.facets)
 
 # upload an image
 image = agent.uploadImage("example.png")
-embed = {"$type": "app.bsky.embed.images#main", "images": [image]}
-record = {"text": rt.text, "facets": rt.facets, "embed": embed}
 
 # post it
+embed = {"$type": "app.bsky.embed.images#main", "images": [image]}
+record = {"text": rt.text, "facets": rt.facets, "embed": embed}
 response = agent.post(record)
 print(response)
 ```
@@ -144,4 +153,4 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ## Author
 
-Susumu Ota
+S. Ota
