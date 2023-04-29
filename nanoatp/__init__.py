@@ -4,5 +4,5 @@
 from .bskyagent import BskyAgent, parseAtUri
 from .richtext import RichText
 
-__version__ = "0.3.2"
+__version__ = "0.3.3"
 __all__ = ['__version__', 'BskyAgent', 'parseAtUri', 'RichText']
