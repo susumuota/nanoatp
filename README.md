@@ -15,6 +15,8 @@ A nano implementation of the AT Protocol for Python.
 
 - A bot built with nanoatp that summarizes the top 30 most popular arXiv papers on Reddit and Hacker News in the last 30 days and posts them to Bluesky.
   - [@paper.bsky.social](https://staging.bsky.app/profile/paper.bsky.social)
+    - It needs to have an account on Bluesky to see the posts. But there is a similar bot on Twitter [@susumuota](https://twitter.com/susumuota).
+  - [Source code](https://github.com/susumuota/arxiv-reddit-summary)
 
 ## Getting started
 
