@@ -9,7 +9,12 @@ EN |
 [ES](https://github-com.translate.goog/susumuota/nanoatp/blob/main/README.md?_x_tr_sl=en&_x_tr_tl=es&_x_tr_hl=es&_x_tr_pto=wapp) |
 [ZH](https://github-com.translate.goog/susumuota/nanoatp/blob/main/README.md?_x_tr_sl=en&_x_tr_tl=zh-CN&_x_tr_hl=zh-CN&_x_tr_pto=wapp)
 
-A nano implementation of the AT Protocol (Authenticated Transfer Protocol) for Python.
+A nano implementation of the AT Protocol for Python.
+
+## Demo
+
+- A bot built with nanoatp that summarizes the top 30 most popular arXiv papers on Reddit and Hacker News in the last 30 days and posts them to Bluesky.
+  - [@paper.bsky.social](https://staging.bsky.app/profile/paper.bsky.social)
 
 ## Getting started
 
@@ -47,7 +52,7 @@ print(rt.facets)
 # upload an image
 image = agent.uploadImage("example.png")
 
-# post it
+# post a RichText with an image
 embed = {"$type": "app.bsky.embed.images#main", "images": [image]}
 record = {"text": rt.text, "facets": rt.facets, "embed": embed}
 response = agent.post(record)
@@ -118,7 +123,7 @@ The methods above are convenience wrappers. It covers most but not all available
 The AT Protocol identifies methods and records with reverse-DNS names. You can use them on the agent as well:
 
 ```python
-res1 = agent.createRecord(
+res1 = agent._repo_createRecord(
     agent.session["did"],  # repo
     "app.bsky.feed.post",  # collection
     {

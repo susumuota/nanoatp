@@ -35,8 +35,10 @@ class BskyAgent:
         self.headers = {"Authorization": f"Bearer {accessJwt}"}
         return self.session
 
-    def getPost(self, repo: str, rkey: str, cid: str = "") -> dict[str, Any]:
+    def getPost(self, repo: str, rkey: str, cid: str = ""):
         """https://github.com/bluesky-social/atproto/blob/main/packages/api/src/bsky-agent.ts"""
+        if not self.session:
+            raise Exception("Not logged in")
         return self._repo_getRecord(repo, "app.bsky.feed.post", rkey, cid)
 
     def post(self, record: dict[str, Any]):
@@ -59,7 +61,7 @@ class BskyAgent:
             raise Exception(f"Invalid postUrl format: {postUri}")
         return self._repo_deleteRecord(repo, collection, rkey)
 
-    def uploadBlob(self, data: bytes, encoding: str) -> dict[str, Any]:
+    def uploadBlob(self, data: bytes, encoding: str):
         """https://github.com/bluesky-social/atproto/blob/main/packages/api/src/agent.ts"""
         if not self.session:
             raise Exception("Not logged in")
@@ -67,6 +69,8 @@ class BskyAgent:
 
     def resolveHandle(self, handle: str):
         """https://github.com/bluesky-social/atproto/blob/main/packages/api/src/agent.ts"""
+        if not self.session:
+            raise Exception("Not logged in")
         return self._identity_resolveHandle(handle)
 
     def uploadImage(self, path: str, alt: str = "", encoding: str = ""):
@@ -168,7 +172,7 @@ class BskyAgent:
         response = self.requests.post(f"{self.service}/xrpc/com.atproto.repo.uploadBlob", headers=headers, data=data)
         return response.json()
 
-    def _identity_resolveHandle(self, handle: str):
+    def _identity_resolveHandle(self, handle: str) -> dict[str, str]:
         """https://github.com/bluesky-social/atproto/blob/main/lexicons/com/atproto/identity/resolveHandle.json"""
         params = {"handle": handle}
         response = self.requests.get(
