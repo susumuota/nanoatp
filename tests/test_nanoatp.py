@@ -11,7 +11,7 @@ import nanoatp
 
 @pytest.fixture
 def png(tmpdir) -> str:  # type: ignore
-    response = requests.get("https://staging.bsky.app/static/favicon-16x16.png")
+    response = requests.get("https://bsky.app/static/favicon-16x16.png")
     tmpfile = tmpdir.join("favicon-16x16.png")
     with tmpfile.open("wb") as f:
         f.write(response.content)
@@ -20,7 +20,7 @@ def png(tmpdir) -> str:  # type: ignore
 
 
 def test_version():
-    assert nanoatp.__version__ == "0.3.4"
+    assert nanoatp.__version__ == "0.3.5"
 
 
 def test_richtext():

@@ -180,6 +180,16 @@ class BskyAgent:
         )
         return response.json()
 
+    def _graph_getBlocks(self, limit: int = 50, cursor: str = "") -> dict[str, Any]:
+        """https://github.com/bluesky-social/atproto/blob/main/lexicons/app/bsky/graph/getBlocks.json"""
+        params: dict[str, str | int] = {}
+        params.update({"limit": limit}) if limit != 50 else None  # 1 <= limit <= 100
+        params.update({"cursor": cursor}) if cursor != "" else None
+        response = self.requests.get(
+            f"{self.service}/xrpc/app.bsky.graph.getBlocks", headers=self.headers, params=params
+        )
+        return response.json()
+
 
 def parseAtUri(uri: str):
     """https://github.com/bluesky-social/atproto/blob/main/packages/uri/src/index.ts"""
