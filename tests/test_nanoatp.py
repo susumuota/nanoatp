@@ -20,7 +20,7 @@ def png(tmpdir) -> str:  # type: ignore
 
 
 def test_version():
-    assert nanoatp.__version__ == "0.4.0"
+    assert nanoatp.__version__ == "0.4.1"
 
 
 def test_richtext():
