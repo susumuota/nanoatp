@@ -107,7 +107,7 @@ class BskyAgent:
         if metadata["data"] and metadata["encoding"]:
             response = self._repo_uploadBlob(metadata["data"], metadata["encoding"])
             blob: dict[str, str] = response.get("blob") or {}
-        external.update({"thumb": blob}) if blob is not {} else None
+            external.update({"thumb": blob}) if blob is not {} else None
         return external
 
     def _server_createSession(self, identifier: str, password: str) -> dict[str, Any]:
