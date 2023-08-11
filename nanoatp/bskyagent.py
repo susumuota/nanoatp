@@ -4,10 +4,11 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from io import BytesIO
 from mimetypes import guess_type
 from os import getenv
 from typing import Any
-from urllib.parse import urlparse
+from urllib.parse import urlparse, quote
 
 import requests
 
@@ -58,7 +59,7 @@ class BskyAgent:
             raise Exception("Not logged in")
         repo, collection, rkey = parseAtUri(postUri)
         if not (repo and collection and rkey):
-            raise Exception(f"Invalid postUrl format: {postUri}")
+            raise Exception(f"Invalid postUri format: {postUri}")
         return self._repo_deleteRecord(repo, collection, rkey)
 
     def uploadBlob(self, data: bytes, encoding: str):
@@ -88,14 +89,26 @@ class BskyAgent:
         image: dict[str, Any] = {
             "$type": "app.bsky.embed.images#image",
             "alt": alt,
-            "image": {
-                "$type": "blob",
-                "ref": blob.get("ref"),
-                "mimeType": blob.get("mimeType"),
-                "size": blob.get("size"),
-            },
+            "image": blob,
         }
         return image
+
+    def uploadExternal(self, uri: str):
+        """https://github.com/bluesky-social/atproto/blob/main/lexicons/app/bsky/embed/external.json"""
+        if not self.session:
+            raise Exception("Not logged in")
+        metadata = getLinkMetaData(uri)
+        external: dict[str, Any] = {
+            "$type": "app.bsky.embed.external#external",
+            "uri": uri,
+            "title": metadata["title"],
+            "description": metadata["description"],
+        }
+        if metadata["data"] and metadata["encoding"]:
+            response = self._repo_uploadBlob(metadata["data"], metadata["encoding"])
+            blob: dict[str, str] = response.get("blob") or {}
+        external.update({"thumb": blob}) if blob is not {} else None
+        return external
 
     def _server_createSession(self, identifier: str, password: str) -> dict[str, Any]:
         """https://github.com/bluesky-social/atproto/blob/main/lexicons/com/atproto/server/createSession.json"""
@@ -197,3 +210,48 @@ def parseAtUri(uri: str):
     repo = u.netloc
     _, collection, rkey = u.path.split("/")
     return repo, collection, rkey
+
+
+def getLinkMetaData(uri: str) -> dict[str, str | bytes]:
+    """https://cardyb.bsky.app/v1/extract?url={quote(uri)}
+    returns {"error", "likely_type", "url", "title", "description", "image", "data", "encoding"}
+    or raises Exception.
+    """
+    response = requests.get(f"https://cardyb.bsky.app/v1/extract?url={quote(uri)}")
+    if response.status_code != 200:
+        raise Exception(f"HTTP status code {response.status_code}")
+    json = response.json()
+    if json["error"]:
+        raise Exception(json["error"])
+    json.update({"data": b""})
+    json.update({"encoding": ""})
+    if json["image"]:  # should be https://cardyb.bsky.app/v1/image?url=...
+        try:
+            image_data = getImageData(json["image"])
+        except Exception:
+            return json  # no image data
+        json.update({"data": image_data["data"]})
+        json.update({"encoding": image_data["encoding"]})
+    return json
+
+
+def getImageData(uri: str, chunk_size: int = 8192) -> dict[str, str | bytes]:
+    """uri should be https://cardyb.bsky.app/v1/image?url=...
+    returns {"data", "encoding"} or raises Exception.
+    """
+    try:
+        response = requests.get(uri, stream=True)
+        if response.status_code != 200:
+            raise Exception(f"HTTP status code {response.status_code}")
+        buffer = BytesIO()
+        for chunk in response.iter_content(chunk_size=chunk_size):
+            buffer.write(chunk) if chunk else None
+        data = buffer.getvalue()
+        encoding = response.headers.get("Content-Type") or ""
+    finally:
+        buffer.close() if buffer else None
+        response.close() if response else None
+    if data and encoding:
+        return {"data": data, "encoding": encoding}
+    else:
+        raise Exception("no data or encoding")
