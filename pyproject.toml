@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nanoatp"
-version = "0.3.5"
+version = "0.4.0"
 description = "A nano implementation of the AT Protocol for Python."
 license = "MIT"
 authors = ["Susumu OTA <1632335+susumuota@users.noreply.github.com>"]

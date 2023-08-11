@@ -20,13 +20,13 @@ def png(tmpdir) -> str:  # type: ignore
 
 
 def test_version():
-    assert nanoatp.__version__ == "0.3.5"
+    assert nanoatp.__version__ == "0.4.0"
 
 
 def test_richtext():
     agent = nanoatp.BskyAgent()
     agent.login()  # Use environment variables ATP_IDENTIFIER and ATP_PASSWORD
-    text = "Hello @ota.bsky.social, check out this link: https://example.com"
+    text = "Hello @nanoatp.bsky.social, check out this link: https://example.com"
     rt = nanoatp.RichText(text)
     rt.detectFacets(agent)
     for facet in rt.facets:
@@ -84,7 +84,7 @@ def test_bskyagent(png):
     #     if cursor is None:
     #         break
 
-    text = "Hello @ota.bsky.social, check out this link: https://example.com"
+    text = "Hello @nanoatp.bsky.social, check out this link: https://example.com"
     rt = nanoatp.RichText(text)
     rt.detectFacets(agent)
     record = {"text": rt.text, "facets": rt.facets}
@@ -129,4 +129,26 @@ def test_bskyagent(png):
     assert response["uri"] == record["uri"]
     assert response["cid"] == record["cid"]
     print({"uri": record["uri"], "cid": record["cid"]})
+    sleep(1)
+
+
+def test_embed_external():
+    agent = nanoatp.BskyAgent()
+    agent.login()
+    external = agent.uploadExternal("https://huggingface.co/")
+    print(external)
+    assert external is not None
+    assert external.get("$type") is not None
+    assert external.get("uri") is not None
+    assert external.get("title") is not None
+    assert external.get("description") is not None
+    assert external.get("thumb") is not None
+    sleep(1)
+    embed = {"$type": "app.bsky.embed.external#main", "external": external}
+    record = {"text": "external link test", "embed": embed}
+    response = agent.post(record)
+    print(response)
+    assert response is not None
+    assert response.get("uri") is not None
+    assert response.get("cid") is not None
     sleep(1)

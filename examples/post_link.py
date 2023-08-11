@@ -6,15 +6,12 @@ from nanoatp import BskyAgent, RichText
 agent = BskyAgent()
 agent.login()
 
-uri = "https://example.com"
-title = "This is a link title"
-description = "This is a link description."
-
-external = {"$type": "app.bsky.embed.external#external", "uri": uri, "title": title, "description": description}
-embed = {"$type": "app.bsky.embed.external#main", "external": external}
-
-rt = RichText("Hello @ota.bsky.social, check out this link: https://example.com")
+rt = RichText("Hello @nanoatp.bsky.social, check out this link: https://huggingface.co/")
 rt.detectFacets(agent)
+
+uri = rt.facets[1]["features"][0]["uri"]
+external = agent.uploadExternal(uri)
+embed = {"$type": "app.bsky.embed.external#main", "external": external}
 
 record = {"text": rt.text, "facets": rt.facets, "embed": embed}
 response = agent.post(record)

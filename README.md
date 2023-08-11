@@ -5,9 +5,9 @@
 [![GitHub last commit](https://img.shields.io/github/last-commit/susumuota/nanoatp)](https://github.com/susumuota/nanoatp/commits)
 &emsp;
 EN |
-[JA](https://github-com.translate.goog/susumuota/nanoatp/blob/main/README.md?_x_tr_sl=en&_x_tr_tl=ja&_x_tr_hl=ja&_x_tr_pto=wapp) |
-[ES](https://github-com.translate.goog/susumuota/nanoatp/blob/main/README.md?_x_tr_sl=en&_x_tr_tl=es&_x_tr_hl=es&_x_tr_pto=wapp) |
-[ZH](https://github-com.translate.goog/susumuota/nanoatp/blob/main/README.md?_x_tr_sl=en&_x_tr_tl=zh-CN&_x_tr_hl=zh-CN&_x_tr_pto=wapp)
+[JA](https://github-com.translate.goog/susumuota/nanoatp?_x_tr_sl=en&_x_tr_tl=ja&_x_tr_hl=ja&_x_tr_pto=wapp) |
+[ES](https://github-com.translate.goog/susumuota/nanoatp?_x_tr_sl=en&_x_tr_tl=es&_x_tr_hl=es&_x_tr_pto=wapp) |
+[ZH](https://github-com.translate.goog/susumuota/nanoatp?_x_tr_sl=en&_x_tr_tl=zh-CN&_x_tr_hl=zh-CN&_x_tr_pto=wapp)
 
 A nano implementation of the AT Protocol for Python.
 
@@ -47,7 +47,7 @@ response = agent.post(record)
 print(response)
 
 # create a RichText
-rt = RichText("Hello @ota.bsky.social, check out this link: https://example.com")
+rt = RichText("Hello @nanoatp.bsky.social, check out this link: https://huggingface.co/")
 rt.detectFacets(agent)
 print(rt.facets)
 
@@ -56,6 +56,16 @@ image = agent.uploadImage("example.png")
 
 # post a RichText with an image
 embed = {"$type": "app.bsky.embed.images#main", "images": [image]}
+record = {"text": rt.text, "facets": rt.facets, "embed": embed}
+response = agent.post(record)
+print(response)
+
+# upload an external link (create a link card with title, description and thumbnail)
+uri = rt.facets[1]["features"][0]["uri"]  # https://huggingface.co/
+external = agent.uploadExternal(uri)
+
+# post a RichText with an external link
+embed = {"$type": "app.bsky.embed.external#main", "external": external}
 record = {"text": rt.text, "facets": rt.facets, "embed": embed}
 response = agent.post(record)
 print(response)
@@ -90,6 +100,7 @@ agent.post(record)
 agent.deletePost(postUri)
 agent.uploadBlob(data, encoding)
 agent.uploadImage(path, alt, encoding)  # wrapper for uploadBlob
+agent.uploadExternal(url)  # wrapper for uploadBlob
 
 # Identity
 agent.resolveHandle(handle)
@@ -110,7 +121,7 @@ from nanoatp import BskyAgent, RichText
 agent = BskyAgent()
 agent.login()
 
-rt = RichText("Hello @ota.bsky.social, check out this link: https://example.com")
+rt = RichText("Hello @nanoatp.bsky.social, check out this link: https://example.com")
 rt.detectFacets(agent)
 record = {"text": rt.text, "facets": rt.facets}
 agent.post(record)

@@ -6,7 +6,7 @@ from nanoatp import BskyAgent, RichText
 agent = BskyAgent()
 agent.login()
 
-rt = RichText("Hello @ota.bsky.social, check out this link: https://example.com")
+rt = RichText("Hello @nanoatp.bsky.social, check out this link: https://example.com")
 rt.detectFacets(agent)
 print(rt.facets)
 
