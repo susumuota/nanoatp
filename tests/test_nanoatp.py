@@ -20,7 +20,7 @@ def png(tmpdir) -> str:  # type: ignore
 
 
 def test_version():
-    assert nanoatp.__version__ == "0.5.0"
+    assert nanoatp.__version__ == "0.5.1"
     print("test_version passed")
 
 
@@ -114,7 +114,6 @@ def test_upload_image(png):
     sleep(1)
     image = agent.uploadImage(png, "this is alt")
     sleep(1)
-    print(f"image: {image}")
     assert image is not None
     assert image.get("alt") is not None
     assert image.get("image") is not None
@@ -122,7 +121,6 @@ def test_upload_image(png):
     record = {"text": "upload image test", "embed": embed}
     posted = agent.post(record)
     sleep(1)
-    print(f"posted: {posted}")
     assert posted is not None
     assert posted.get("uri") is not None
     assert posted.get("cid") is not None

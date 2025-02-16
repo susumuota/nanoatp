@@ -1,6 +1,6 @@
 [project]
 name = "nanoatp"
-version = "0.5.0"
+version = "0.5.1"
 description = "A nano implementation of the AT Protocol for Python."
 license = "MIT"
 authors = [
@@ -13,7 +13,6 @@ classifiers = [
 ]
 requires-python = ">=3.9"
 dependencies = [
-    "atproto>=0.0.58",
     "requests>=2.32.3",
     "tld>=0.13",
 ]
