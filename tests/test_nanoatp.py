@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2023 Susumu OTA <1632335+susumuota@users.noreply.github.com>
+# SPDX-FileCopyrightText: 2023-2025 Susumu OTA <1632335+susumuota@users.noreply.github.com>
 # SPDX-License-Identifier: MIT
 
 from time import sleep
@@ -20,15 +20,18 @@ def png(tmpdir) -> str:  # type: ignore
 
 
 def test_version():
-    assert nanoatp.__version__ == "0.4.1"
+    assert nanoatp.__version__ == "0.5.0"
+    print("test_version passed")
 
 
 def test_richtext():
     agent = nanoatp.BskyAgent()
-    agent.login()  # Use environment variables ATP_IDENTIFIER and ATP_PASSWORD
+    agent.login()
+    sleep(1)
     text = "Hello @nanoatp.bsky.social, check out this link: https://example.com"
     rt = nanoatp.RichText(text)
     rt.detectFacets(agent)
+    assert len(rt.facets) == 2
     for facet in rt.facets:
         start = facet["index"]["byteStart"]
         end = facet["index"]["byteEnd"]
@@ -39,116 +42,118 @@ def test_richtext():
             assert text[start:end] == facet["features"][0]["uri"]
         elif facet["features"][0]["$type"] == "app.bsky.richtext.facet#mention":
             assert facet["features"][0]["did"]
-    print(rt.facets)
+    print("test_richtext passed")
 
 
-def test_bskyagent(png):
+def test_login():
     agent = nanoatp.BskyAgent()
-    print(agent)
     assert agent is not None
     assert agent.service == "https://bsky.social"
     assert agent.requests is not None
     assert agent.session == {}
-
-    session = agent.login()  # Use environment variables ATP_IDENTIFIER and ATP_PASSWORD
-    print(session)
+    assert agent.headers == {}
+    session = agent.login()
+    sleep(1)
+    assert agent.session != {}
+    assert agent.headers != {}
     assert session != {}
     assert session.get("did") is not None
     assert session.get("handle") is not None
     assert session.get("email") is not None
     assert session.get("accessJwt") is not None
     assert session.get("refreshJwt") is not None
+    handle = agent.resolveHandle(session["handle"])
     sleep(1)
-
-    response = agent.resolveHandle(session["handle"])
-    assert response is not None
-    assert response.get("did") is not None
-    assert response.get("did") == session.get("did")
-    print(response)
-    sleep(1)
-
-    # # delete recent 100 posts
-    # cursor = ""
-    # for i in range(1):
-    #     response = agent._repo_listRecords(session["did"], "app.bsky.feed.post", limit=100, cursor=cursor)
-    #     print({"i": i, "cursor": response.get("cursor"), "records": len(response["records"])})
-    #     assert response is not None
-    #     assert response.get("cursor") is None or isinstance(response.get("cursor"), str)
-    #     assert response.get("records") is not None
-    #     cursor = response.get("cursor")
-    #     for record in response["records"]:
-    #         print({"uri": record["uri"]})
-    #         r = agent.deletePost(record["uri"])
-    #         print({"status_code": r.status_code})
-    #         sleep(1)
-    #     if cursor is None:
-    #         break
-
-    text = "Hello @nanoatp.bsky.social, check out this link: https://example.com"
-    rt = nanoatp.RichText(text)
-    rt.detectFacets(agent)
-    record = {"text": rt.text, "facets": rt.facets}
-    response = agent.post(record)
-    print(response)
-    assert response is not None
-    assert response.get("uri") is not None
-    assert response.get("cid") is not None
-
-    record = {"text": "Hello0"}
-    response = agent.post(record)
-    print(response)
-    assert response is not None
-    assert response.get("uri") is not None
-    assert response.get("cid") is not None
-    root = response
-    parent = root
-    sleep(1)
-
-    record = {"text": "Hello1", "reply": {"root": root, "parent": parent}}
-    response = agent.post(record)
-    print(response)
-    assert response is not None
-    assert response.get("uri") is not None
-    assert response.get("cid") is not None
-    parent = response
-    sleep(1)
-
-    images = [agent.uploadImage(png, f"this is alt {i}") for i in range(4)]
-    embed = {"$type": "app.bsky.embed.images#main", "images": images}
-    record = {"text": "Hello2", "reply": {"root": root, "parent": parent}, "embed": embed}
-    response = agent.post(record)
-    print(response)
-    assert response is not None
-    assert response.get("uri") is not None
-    assert response.get("cid") is not None
-    sleep(1)
-
-    repo, _, rkey = nanoatp.parseAtUri(response["uri"])
-    record = agent.getPost(repo, rkey, response["cid"])
-    print(record)
-    assert response["uri"] == record["uri"]
-    assert response["cid"] == record["cid"]
-    print({"uri": record["uri"], "cid": record["cid"]})
-    sleep(1)
+    assert handle is not None
+    assert handle.get("did") is not None
+    assert handle.get("did") == session.get("did")
+    print("test_login passed")
 
 
-def test_embed_external():
+def test_post():
     agent = nanoatp.BskyAgent()
     agent.login()
+    sleep(1)
+    posted = agent.post({"text": "Hello"})
+    sleep(1)
+    assert posted is not None
+    assert posted.get("uri") is not None
+    assert posted.get("cid") is not None
+    deleted = agent.deletePost(posted.get("uri"))
+    sleep(1)
+    assert deleted is not None
+    assert deleted.status_code == 200
+    print("test_post passed")
+
+
+def test_get_post():
+    agent = nanoatp.BskyAgent()
+    agent.login()
+    sleep(1)
+    posted = agent.post({"text": "Hello"})
+    sleep(1)
+    assert posted is not None
+    assert posted.get("uri") is not None
+    assert posted.get("cid") is not None
+    repo, _, rkey = nanoatp.parseAtUri(posted.get("uri"))
+    got = agent.getPost(repo, rkey, posted.get("cid"))
+    sleep(1)
+    assert got is not None
+    assert got.get("uri") == posted.get("uri")
+    assert got.get("cid") == posted.get("cid")
+    deleted = agent.deletePost(posted.get("uri"))
+    sleep(1)
+    assert deleted is not None
+    assert deleted.status_code == 200
+    print("test_get_post passed")
+
+
+def test_upload_image(png):
+    agent = nanoatp.BskyAgent()
+    agent.login()
+    sleep(1)
+    image = agent.uploadImage(png, "this is alt")
+    sleep(1)
+    print(f"image: {image}")
+    assert image is not None
+    assert image.get("alt") is not None
+    assert image.get("image") is not None
+    embed = {"$type": "app.bsky.embed.images", "images": [image]}
+    record = {"text": "upload image test", "embed": embed}
+    posted = agent.post(record)
+    sleep(1)
+    print(f"posted: {posted}")
+    assert posted is not None
+    assert posted.get("uri") is not None
+    assert posted.get("cid") is not None
+    deleted = agent.deletePost(posted.get("uri"))
+    sleep(1)
+    assert deleted is not None
+    assert deleted.status_code == 200
+    print("test_upload_image passed")
+
+
+def test_upload_external():
+    agent = nanoatp.BskyAgent()
+    agent.login()
+    sleep(1)
     external = agent.uploadExternal("https://huggingface.co/")
-    print(external)
+    sleep(1)
     assert external is not None
     assert external.get("$type") is not None
     assert external.get("uri") is not None
     assert external.get("title") is not None
     assert external.get("description") is not None
     assert external.get("thumb") is not None
-    sleep(1)
-    embed = {"$type": "app.bsky.embed.external#main", "external": external}
+    embed = {"$type": "app.bsky.embed.external", "external": external}
     record = {"text": "external link test", "embed": embed}
-    response = agent.post(record)
-    print(response)
-    assert response is not None
-    assert response.get("uri") is not None
-    assert response.get("cid") is not None
+    posted = agent.post(record)
     sleep(1)
+    assert posted is not None
+    assert posted.get("uri") is not None
+    assert posted.get("cid") is not None
+    deleted = agent.deletePost(posted.get("uri"))
+    sleep(1)
+    assert deleted is not None
+    assert deleted.status_code == 200
+    print("test_upload_external passed")
