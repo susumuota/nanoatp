@@ -4,4 +4,4 @@
 .vscode
 __pycache__
 dist
-poetry.lock
+uv.lock

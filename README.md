@@ -14,8 +14,7 @@ A nano implementation of the AT Protocol for Python.
 ## Demo
 
 - A bot built with nanoatp that summarizes the top 30 most popular arXiv papers on Reddit and Hacker News in the last 30 days and posts them to Bluesky.
-  - [@paper.bsky.social](https://staging.bsky.app/profile/paper.bsky.social)
-    - It needs to have an account on Bluesky to see the posts. But there is a similar bot on Twitter [@susumuota](https://twitter.com/susumuota).
+  - [@paper.bsky.social](https://bsky.app/profile/paper.bsky.social)
   - [Source code](https://github.com/susumuota/arxiv-reddit-summary)
 
 ## Getting started
@@ -55,7 +54,7 @@ print(rt.facets)
 image = agent.uploadImage("example.png")
 
 # post a RichText with an image
-embed = {"$type": "app.bsky.embed.images#main", "images": [image]}
+embed = {"$type": "app.bsky.embed.images", "images": [image]}
 record = {"text": rt.text, "facets": rt.facets, "embed": embed}
 response = agent.post(record)
 print(response)
@@ -65,7 +64,7 @@ uri = rt.facets[1]["features"][0]["uri"]  # https://huggingface.co/
 external = agent.uploadExternal(uri)
 
 # post a RichText with an external link
-embed = {"$type": "app.bsky.embed.external#main", "external": external}
+embed = {"$type": "app.bsky.embed.external", "external": external}
 record = {"text": rt.text, "facets": rt.facets, "embed": embed}
 response = agent.post(record)
 print(response)
@@ -152,9 +151,11 @@ res1 = agent._repo_createRecord(
 ```bash
 export ATP_IDENTIFIER="foo.bsky.social"
 export ATP_PASSWORD="password"
-poetry install
-poetry run pytest -s     # run pytest once
-poetry run -- ptw -- -s  # watch for changes and run pytest
+git clone https://github.com/susumuota/nanoatp.git
+cd nanoatp
+uv sync
+source .venv/bin/activate
+ptw . -s
 ```
 
 ## TODO:
@@ -171,4 +172,6 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ## Author
 
-S. Ota
+Susumu Ota
+- https://bsky.app/profile/ota.bsky.social
+- https://github.com/susumuota

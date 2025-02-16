@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2023 Susumu OTA <1632335+susumuota@users.noreply.github.com>
+# SPDX-FileCopyrightText: 2023-2025 Susumu OTA <1632335+susumuota@users.noreply.github.com>
 # SPDX-License-Identifier: MIT
 
 from nanoatp import BskyAgent, RichText
@@ -11,7 +11,7 @@ rt.detectFacets(agent)
 
 uri = rt.facets[1]["features"][0]["uri"]
 external = agent.uploadExternal(uri)
-embed = {"$type": "app.bsky.embed.external#main", "external": external}
+embed = {"$type": "app.bsky.embed.external", "external": external}
 
 record = {"text": rt.text, "facets": rt.facets, "embed": embed}
 response = agent.post(record)
